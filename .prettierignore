@@ -1,0 +1,5 @@
+.env
+.gitignore
+server.cert
+server.key
+node_modules

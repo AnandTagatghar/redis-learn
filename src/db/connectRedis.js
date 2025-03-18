@@ -6,11 +6,10 @@ const redis = new Redis({
 });
 
 async function setValue(key, value) {
-  redis
-    .set(key, value)
+  await redis
+    .set(key, JSON.stringify(value))
     .then(() => redis.get(key))
     .then((val) => {
-      console.log("Stored value:", val);
       return val;
     })
     .catch((err) => {
@@ -19,20 +18,31 @@ async function setValue(key, value) {
     });
 }
 
-async function getValue(keyName) {
-  redis
-    .get(key)
-    .then((value) => {
-      console.log(value);
-      return value;
-    })
-    .catch((err) => {
-      console.error("error: " + err);
-      return null;
-    });
+async function getValue(key) {
+  return await new Promise((res) => {
+    redis
+      .get(key)
+      .then((value) => {
+        res(JSON.parse(value));
+      })
+      .catch((err) => {
+        console.error("error: " + err);
+        res(null);
+      });
+  })
+}
+
+async function delValue(key) {
+  return await redis.del(key).then(() => {
+    return "deleted";
+  }).catch(err => {
+    console.error("error: " + err);
+    return null;
+  });
 }
 
 module.exports = {
   getValue,
   setValue,
+  delValue
 };
